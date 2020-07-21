@@ -24,8 +24,8 @@ from utils.visualization_utils import save_plot_batch
 from callbacks import ImagesLoggingCallback
 
 # Load an experiment
-from experiments.train_base_dcgan import *
-# from experiments.train_cond_hinge_dcgan_spect_norm_pixelnorm_minibatchstd_self_attention import *
+#from experiments.train_base_dcgan import *
+from experiments.train_hinge_dcgan_spect_norm_pixelnorm_minibatchstd_self_attention import *
 
 # FILE PARAMETERS
 model_save_dir = "saved_models/{}/".format(model_name)
