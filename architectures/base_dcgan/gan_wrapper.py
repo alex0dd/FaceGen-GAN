@@ -32,6 +32,8 @@ class GAN_Wrapper(tf.keras.Model):
 
         # Decode them to fake images
         generated_images = self.generator(random_latent_vectors, conditions, training=True)
+        # needed for AMP training
+        generated_images = tf.cast(generated_images, dtype=tf.float32)
 
         # Combine them with real images
         combined_images = tf.concat([generated_images, real_images], axis=0)
@@ -65,7 +67,10 @@ class GAN_Wrapper(tf.keras.Model):
         # Train the generator (note that we should *not* update the weights
         # of the discriminator)!
         with tf.GradientTape() as tape:
-            predictions = self.discriminator(self.generator(random_latent_vectors, conditions), conditions, training=False)
+            # needed for AMP training
+            generated_images_2 = self.generator(random_latent_vectors, conditions)
+            generated_images_2 = tf.cast(generated_images_2, dtype=tf.float32)
+            predictions = self.discriminator(generated_images_2, conditions, training=False)
             g_loss = self.loss_fn(misleading_labels, predictions)
         grads = tape.gradient(g_loss, self.generator.trainable_weights)
         self.g_optimizer.apply_gradients(zip(grads, self.generator.trainable_weights))
