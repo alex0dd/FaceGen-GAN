@@ -21,7 +21,7 @@ class GAN_Wrapper(tf.keras.Model):
         #return self.generator(z, conditions, training=training)
         pass
 
-    #@tf.function
+    @tf.function
     def train_step(self, data):
         # conditions are ignored
         (real_images, conditions), _ = data
@@ -38,7 +38,7 @@ class GAN_Wrapper(tf.keras.Model):
         combined_conds = tf.concat([conditions, conditions], axis=0)
 
         # NOTE: THIS LINE IS IMPORTANT, AS TENSORFLOW CAN'T FIGURE OUT THE SHAPE
-        combined_conds = tf.reshape(combined_conds, (batch_size * 2, 40))
+        #combined_conds = tf.reshape(combined_conds, (batch_size * 2, 40))
 
         # Assemble labels discriminating real from fake images
         labels = tf.concat(

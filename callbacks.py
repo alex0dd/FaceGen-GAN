@@ -43,8 +43,8 @@ class ImagesLoggingCallback(tf.keras.callbacks.Callback):
     def on_epoch_begin(self, epoch, logs=None):
 
         random_latent_vectors = tf.random.normal(shape=(self.n_images, self.latent_dim))
-        generated_images = self.model.generator(random_latent_vectors, self.view_cond, training=False)
-        generated_images_real_cond = self.model.generator(random_latent_vectors, self.real_view_conditions, training=False)
+        generated_images = self.model.generator((random_latent_vectors, self.view_cond), training=False)
+        generated_images_real_cond = self.model.generator((random_latent_vectors, self.real_view_conditions), training=False)
         generated_images = (generated_images + 1) / 2.0
         generated_images_real_cond = (generated_images_real_cond + 1) / 2.0
         #generated_images *= 255
