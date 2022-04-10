@@ -41,7 +41,9 @@ class Generator(tf.keras.Model):
             padding="same", activation="tanh")
 
     @tf.function
-    def call(self, z, conditions, training=False):
+    def call(self, inputs, training=False):
+
+        z, conditions = inputs
 
         cond_emb = self.cond_dense1(conditions)
         cond_emb = self.cond_lrelu1(cond_emb)

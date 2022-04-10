@@ -35,9 +35,11 @@ class Discriminator(tf.keras.Model):
         self.scoring = tf.keras.layers.Dense(1, activation="sigmoid")
     
     @tf.function
-    def call(self, images, conditions, training=False):
+    def call(self, inputs, training=False):
 
         #print(conditions)
+
+        images, conditions = inputs
         
         x = images
 
