@@ -15,29 +15,39 @@ class Discriminator(tf.keras.Model):
         #self.cond_lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
         #self.cond_reshape1 = tf.keras.layers.Reshape((64, 64, 3))
 
+        """
+        self.relu = tf.keras.layers.ReLU()
         # 64 x 64 x FILTERS
         self.block1_conv1 = tf.keras.layers.Conv2D(filters, kernel_size, strides=(1, 1), padding="same")
-        self.block1_lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
 
         # 32 x 32 x FILTERS
         self.block2_conv1 = tf.keras.layers.Conv2D(filters, kernel_size, strides=(2, 2), padding="same")
-        self.block2_lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
 
         # 16 x 16 x FILTERS
         self.block3_conv1 = tf.keras.layers.Conv2D(filters, kernel_size, strides=(2, 2), padding="same")
-        self.block3_lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
 
         # 8 x 8 x FILTERS
         self.block4_conv1 = tf.keras.layers.Conv2D(filters, kernel_size, strides=(2, 2), padding="same")
-        self.block4_lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
 
         # 4 x 4 x FILTERS
         self.block5_conv1 = tf.keras.layers.Conv2D(filters, kernel_size, strides=(2, 2), padding="same")
-        self.block5_lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
+        """
+        self.downsample_network = tf.keras.models.Sequential([
+            tf.keras.layers.Conv2D(filters, kernel_size, strides=(1, 1), padding="same"),
+            tf.keras.layers.ReLU(),
+            tf.keras.layers.Conv2D(filters, kernel_size, strides=(2, 2), padding="same"),
+            tf.keras.layers.ReLU(),
+            tf.keras.layers.Conv2D(filters, kernel_size, strides=(2, 2), padding="same"),
+            tf.keras.layers.ReLU(),
+            tf.keras.layers.Conv2D(filters, kernel_size, strides=(2, 2), padding="same"),
+            tf.keras.layers.ReLU(),
+            tf.keras.layers.Conv2D(filters, kernel_size, strides=(2, 2), padding="same"),
+            tf.keras.layers.ReLU()
+        ])
 
         self.flatten = tf.keras.layers.Flatten()
         self.dropout = tf.keras.layers.Dropout(0.4)
-        self.scoring = tf.keras.layers.Dense(1, activation="sigmoid")
+        self.scoring = tf.keras.layers.Dense(1)
     
     @tf.function
     def call(self, inputs, training=False):
@@ -46,20 +56,23 @@ class Discriminator(tf.keras.Model):
         
         x = images
 
+        """
         x = self.block1_conv1(x)
-        x = self.block1_lrelu1(x)
+        x = self.relu(x)
 
         x = self.block2_conv1(x)
-        x = self.block2_lrelu1(x)
+        x = self.relu(x)
 
         x = self.block3_conv1(x)
-        x = self.block3_lrelu1(x)
+        x = self.relu(x)
 
         x = self.block4_conv1(x)
-        x = self.block4_lrelu1(x)
+        x = self.relu(x)
 
         x = self.block5_conv1(x)
-        x = self.block5_lrelu1(x)
+        x = self.relu(x)
+        """
+        x = self.downsample_network(x)
 
         latent_repr = self.flatten(x)
 

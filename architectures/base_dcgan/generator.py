@@ -26,30 +26,40 @@ class Generator(tf.keras.Model):
 
         # Separate reshape
         self.reshape1 = tf.keras.layers.Reshape((4, 4, filters))
+        self.relu = tf.keras.layers.ReLU()
+        """
         # 4x4 -> 8x8
         self.block1_deconv1 = tf.keras.layers.Conv2DTranspose(
             filters=filters, kernel_size=kernel_size, strides=(2, 2), 
             padding="same")
-        self.block1_lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
         # 8x8 -> 16x16
         self.block2_deconv1 = tf.keras.layers.Conv2DTranspose(
             filters=filters, kernel_size=kernel_size, strides=(2, 2), 
             padding="same")
-        self.block2_lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
         # 16x16 -> 32x32
         self.block3_deconv1 = tf.keras.layers.Conv2DTranspose(
             filters=filters, kernel_size=kernel_size, strides=(2, 2), 
             padding="same")
-        self.block3_lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
         # 32x32 -> 64x64
         self.block4_deconv1 = tf.keras.layers.Conv2DTranspose(
             filters=filters, kernel_size=kernel_size, strides=(2, 2), 
             padding="same")
-        self.block4_lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
         # 64 x 64 x FILTERS -> 64 x 64 x 3
         self.block5_deconv1 = tf.keras.layers.Conv2DTranspose(
             filters=3, kernel_size=kernel_size, strides=(1, 1), 
             padding="same", activation="tanh")
+        """
+        self.upsample_network = tf.keras.models.Sequential([
+            tf.keras.layers.Conv2DTranspose(filters=filters, kernel_size=kernel_size, strides=(2, 2), padding="same"),
+            tf.keras.layers.ReLU(),
+            tf.keras.layers.Conv2DTranspose(filters=filters, kernel_size=kernel_size, strides=(2, 2), padding="same"),
+            tf.keras.layers.ReLU(),
+            tf.keras.layers.Conv2DTranspose(filters=filters, kernel_size=kernel_size, strides=(2, 2), padding="same"),
+            tf.keras.layers.ReLU(),
+            tf.keras.layers.Conv2DTranspose(filters=filters, kernel_size=kernel_size, strides=(2, 2), padding="same"),
+            tf.keras.layers.ReLU(),
+            tf.keras.layers.Conv2DTranspose(filters=3, kernel_size=kernel_size, strides=(1, 1), padding="same", activation="tanh")
+        ])
 
     @tf.function
     def call(self, inputs, training=False):
@@ -64,17 +74,20 @@ class Generator(tf.keras.Model):
         x = self.post_adapt_dense(conc_adapted)
         x = self.reshape1(x)
 
+        """
         x = self.block1_deconv1(x)
-        x = self.block1_lrelu1(x)
+        x = self.relu(x)
 
         x = self.block2_deconv1(x)
-        x = self.block2_lrelu1(x)
+        x = self.relu(x)
 
         x = self.block3_deconv1(x)
-        x = self.block3_lrelu1(x)
+        x = self.relu(x)
 
         x = self.block4_deconv1(x)
-        x = self.block4_lrelu1(x)
+        x = self.relu(x)
 
         images = self.block5_deconv1(x)
+        """
+        images = self.upsample_network(x)
         return images
