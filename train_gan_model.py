@@ -39,7 +39,7 @@ makedir_if_not_exists(model_gen_sample_dir)
 makedir_if_not_exists(model_gen_real_dir)
 
 # prepare train data sequence
-train_data_df = pd.read_csv(dataset_attr_file_train)
+train_data_df = pd.read_csv(dataset_attr_file_train, sep="\s+")
 training_generator = DataSequence(train_data_df, dataset_images_path,  batch_size=batch_size)
 
 # take first batch of validation dataset for visual results report 
