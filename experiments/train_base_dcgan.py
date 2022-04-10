@@ -11,10 +11,10 @@ n_epochs = 100
 conditional_dim = 40
 latent_dim = 128
 filters_gen = 64
-kernel_size_gen = 4
+kernel_size_gen = 3
 # DISCRIMINATOR PARAMETERS
 filters_disc = 64
-kernel_size_disc = 5
+kernel_size_disc = 3
 # TRAINING OPTIMIZER PARAMETERS
 init_learning_rate_gen = 0.0002
 init_learning_rate_disc = 0.0002
@@ -32,7 +32,7 @@ gan_model = GAN_Wrapper(discriminator_model, generator_model)
 gan_model.compile(
     d_optimizer=tf.keras.optimizers.Adam(learning_rate=init_learning_rate_disc, beta_1=beta_1),
     g_optimizer=tf.keras.optimizers.Adam(learning_rate=init_learning_rate_gen, beta_1=beta_1),
-    loss_fn=tf.keras.losses.BinaryCrossentropy(),
+    loss_fn=tf.keras.losses.BinaryCrossentropy(from_logits=True),
 )
 # callbacks
 train_callbacks = [
