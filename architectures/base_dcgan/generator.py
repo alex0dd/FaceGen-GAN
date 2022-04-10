@@ -8,12 +8,23 @@ class Generator(tf.keras.Model):
         self.filters = filters
         self.latent_dim = latent_dim
 
-        self.cond_dense1 = tf.keras.layers.Dense(4 * 4 * filters)#, input_shape=(40,))
-        self.cond_lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
-        self.cond_reshape1 = tf.keras.layers.Reshape((4, 4, filters))
+        self.cond_mlp = tf.keras.models.Sequential([
+            tf.keras.Input(shape=(40,)),
+            tf.keras.layers.Dense(4 * 4 * filters),
+            tf.keras.layers.LeakyReLU(alpha=0.2),
+            #tf.keras.layers.Reshape((4, 4, filters))
+        ])
 
-        self.dense1 = tf.keras.layers.Dense(4 * 4 * filters)
-        self.lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
+        self.latent_adapt_mlp = tf.keras.models.Sequential([
+            tf.keras.layers.Dense(4 * 4 * filters),
+            tf.keras.layers.LeakyReLU(alpha=0.2)
+        ])
+
+        self.post_adapt_dense = tf.keras.layers.Dense(4 * 4 * filters)
+        #self.dense1 = tf.keras.layers.Dense(4 * 4 * filters)
+        #self.lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
+
+        # Separate reshape
         self.reshape1 = tf.keras.layers.Reshape((4, 4, filters))
         # 4x4 -> 8x8
         self.block1_deconv1 = tf.keras.layers.Conv2DTranspose(
@@ -45,15 +56,13 @@ class Generator(tf.keras.Model):
 
         z, conditions = inputs
 
-        cond_emb = self.cond_dense1(conditions)
-        cond_emb = self.cond_lrelu1(cond_emb)
-        cond_emb = self.cond_reshape1(cond_emb)
+        cond_adapted = self.cond_mlp(conditions)
+        latent_adapted = self.latent_adapt_mlp(z)
 
-        x = self.dense1(z)
-        x = self.lrelu1(x)
+        conc_adapted = tf.concat([latent_adapted, cond_adapted], axis=-1)
+
+        x = self.post_adapt_dense(conc_adapted)
         x = self.reshape1(x)
-
-        x = tf.concat([x, cond_emb], axis=-1)
 
         x = self.block1_deconv1(x)
         x = self.block1_lrelu1(x)

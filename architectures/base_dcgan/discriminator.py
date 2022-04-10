@@ -8,9 +8,8 @@ class Discriminator(tf.keras.Model):
 
         self.cond_mlp = tf.keras.models.Sequential([
             tf.keras.Input(shape=(40,)),
-            tf.keras.layers.Dense(64 * 64 * 3),
+            tf.keras.layers.Dense(filters),
             tf.keras.layers.LeakyReLU(alpha=0.2),
-            tf.keras.layers.Reshape((64, 64, 3))
         ])
         #self.cond_dense1 = tf.keras.layers.Dense(64 * 64 * 3, input_shape=(40,))
         #self.cond_lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
@@ -43,18 +42,9 @@ class Discriminator(tf.keras.Model):
     @tf.function
     def call(self, inputs, training=False):
 
-        #print(conditions)
-
         images, conditions = inputs
         
         x = images
-
-        cond_emb = self.cond_mlp(conditions)
-        #cond_emb = self.cond_dense1(conditions)
-        #cond_emb = self.cond_lrelu1(cond_emb)
-        #cond_emb = self.cond_reshape1(cond_emb)
-
-        x = tf.concat([x, cond_emb], axis=-1)
 
         x = self.block1_conv1(x)
         x = self.block1_lrelu1(x)
@@ -71,8 +61,13 @@ class Discriminator(tf.keras.Model):
         x = self.block5_conv1(x)
         x = self.block5_lrelu1(x)
 
-        x = self.flatten(x)
-        x = self.dropout(x, training=training)
-        scores = self.scoring(x)
+        latent_repr = self.flatten(x)
+
+        # concat embeddings with latent representation
+        cond_emb = self.cond_mlp(conditions)
+        latent_with_cond = tf.concat([latent_repr, cond_emb], axis=-1)
+        latent_with_cond = self.dropout(latent_with_cond, training=training)
+        # classify
+        scores = self.scoring(latent_with_cond)
 
         return scores
