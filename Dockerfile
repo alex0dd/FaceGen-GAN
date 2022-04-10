@@ -7,4 +7,8 @@ ADD requirements.txt .
 
 RUN pip install -r requirements.txt
 
+RUN pip install nvidia-pyindex
+RUN pip install nvidia-dlprof
+
+
 ADD . .

@@ -5,16 +5,6 @@ import numpy as np
 import pandas as pd
 
 import tensorflow as tf
-from tensorflow.compat.v1 import ConfigProto
-from tensorflow.compat.v1 import InteractiveSession
-
-# ----- CONFIGURE TENSORFLOW -----
-# This step might be needed in case cuDNN
-# gives problems with convolutions
-config = ConfigProto()
-config.gpu_options.allow_growth = True
-session = InteractiveSession(config=config)
-# --------------------------------
 
 from datasets.celeba.dataloader import DataSequence
 
@@ -24,8 +14,13 @@ from utils.visualization_utils import save_plot_batch
 from callbacks import ImagesLoggingCallback
 
 # Load an experiment
-#from experiments.train_base_dcgan import *
-from experiments.train_hinge_dcgan_spect_norm_pixelnorm_minibatchstd_self_attention import *
+from experiments.train_base_dcgan import *
+#from experiments.train_hinge_dcgan_spect_norm_pixelnorm_minibatchstd_self_attention import *
+
+# AMP
+policy = tf.keras.mixed_precision.Policy('mixed_float16')
+tf.keras.mixed_precision.set_global_policy(policy)
+
 
 # FILE PARAMETERS
 model_save_dir = "saved_models/{}/".format(model_name)
@@ -75,10 +70,19 @@ else:
 train_callbacks.append(ImagesLoggingCallback(25, latent_dim, view_cond, real_view_conditions, model_images_save_base_dir))
 
 # Train the model
+"""
 history = gan_model.fit(training_generator,
     use_multiprocessing=True,
     workers=8,
     epochs=n_epochs,
+    callbacks=train_callbacks,
+    initial_epoch=load_epoch
+)
+"""
+history = gan_model.fit(training_generator,
+    use_multiprocessing=True,
+    workers=8,
+    steps_per_epoch=30,
     callbacks=train_callbacks,
     initial_epoch=load_epoch
 )

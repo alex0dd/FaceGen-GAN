@@ -5,7 +5,7 @@ from .base_experiment import *
 
 # TRAINING PARAMETERS
 model_name = "base_dcgan"
-batch_size = 32
+batch_size = 128#32
 n_epochs = 100
 # GENERATOR PARAMETERS
 conditional_dim = 40
@@ -36,5 +36,5 @@ gan_model.compile(
 )
 # callbacks
 train_callbacks = [
-    tf.keras.callbacks.ModelCheckpoint(filepath='saved_models/'+model_name+'/model_{epoch}.h5')
+    #tf.keras.callbacks.ModelCheckpoint(filepath='saved_models/'+model_name+'/model_{epoch}.h5')
 ]
