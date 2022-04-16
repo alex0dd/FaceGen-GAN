@@ -15,11 +15,12 @@ from callbacks import ImagesLoggingCallback
 
 # Load an experiment
 from experiments.train_base_dcgan import *
+#from experiments.train_base_dcgan_rework import *
 #from experiments.train_hinge_dcgan_spect_norm_pixelnorm_minibatchstd_self_attention import *
 
 # AMP
-policy = tf.keras.mixed_precision.Policy('mixed_float16')
-tf.keras.mixed_precision.set_global_policy(policy)
+#policy = tf.keras.mixed_precision.Policy('mixed_float16')
+#tf.keras.mixed_precision.set_global_policy(policy)
 
 
 # FILE PARAMETERS
@@ -79,10 +80,14 @@ history = gan_model.fit(training_generator,
     initial_epoch=load_epoch
 )
 """
+
+#tb_callback = tf.keras.callbacks.TensorBoard(log_dir="/results/tb_profile",
+#                                             profile_batch='10, 20')
+#train_callbacks.append(tb_callback)
 history = gan_model.fit(training_generator,
     use_multiprocessing=True,
     workers=8,
-    steps_per_epoch=30,
+    #steps_per_epoch=30,
     callbacks=train_callbacks,
     initial_epoch=load_epoch
 )

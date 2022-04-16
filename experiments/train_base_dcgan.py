@@ -1,6 +1,7 @@
 import tensorflow as tf
 
-from architectures.base_dcgan import Generator, Discriminator, GAN_Wrapper
+from architectures.base_dcgan import Generator, Discriminator
+from architectures.trainer import GAN_Wrapper
 from .base_experiment import *
 
 # TRAINING PARAMETERS
@@ -24,8 +25,8 @@ load_model = False
 load_epoch = 0
 
 # create models
-generator_model = Generator(latent_dim, filters=filters_gen, kernel_size=kernel_size_gen)
-discriminator_model = Discriminator(filters=filters_disc, kernel_size=kernel_size_disc)
+generator_model = Generator(latent_dim, conditional_dim, filters=filters_gen, kernel_size=kernel_size_gen)
+discriminator_model = Discriminator(conditional_dim, filters=filters_disc, kernel_size=kernel_size_disc)
 # create gan wrapper model
 gan_model = GAN_Wrapper(discriminator_model, generator_model)
 # compile model
